@@ -1,0 +1,28 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BWR-1 Link Budget v2</title>
+<style>body{font:14px system-ui;max-width:1100px;margin:auto;padding:20px;background:#f4f5f6;color:#17212b}h1{margin-bottom:4px}.note{color:#59636d}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}.box,table{background:white;border:1px solid #ccd3d8;border-radius:6px}.box{padding:10px}label{display:block;font-size:12px;color:#59636d}input{width:100%;box-sizing:border-box;padding:6px;font:14px monospace}table{border-collapse:collapse;width:100%;margin-top:16px;overflow:hidden}th,td{padding:7px;border-bottom:1px solid #ddd;text-align:right}th:first-child,td:first-child{text-align:left}.ok{font-weight:bold}.warn{font-weight:bold}code{background:#e8ebed;padding:2px 4px}</style></head><body>
+<h1>BWR-1 · Link budget FMCW v2</h1><p class="note">Separa potência meteorológica, ENBW do range FFT, estatística de looks independentes e margem de engenharia. Estimativa de projeto, não medição.</p>
+<div class="grid" id="inputs"></div><table id="out"></table>
+<p class="note">Modelo de looks: <code>Nind=min(Nchirps, dwell·Bweather)</code>. Ganho estatístico = <code>5 log10(Nind)</code>. Não é chamado de ganho coerente. O Zmin engineering adiciona margem explícita para leakage, phase noise/clutter, ADC e imperfeições ainda não modeladas.</p>
+<script>
+const C=299792458,PI=Math.PI,LN2=Math.LN2;
+const p={f:5.8,Pt:1,Dtx:1.7,Drx:1.7,eta:.55,R:30,Z:10,B:1,T:1,NF:3,L:4,sv:2,sector:120,upd:30,thr:3,enbw:1.5,impl:6,K2:.93};
+const defs=[["f","Frequência GHz"],["Pt","TX W"],["Dtx","Prato TX m"],["Drx","Prato RX m"],["eta","Eficiência"],["R","Alcance km"],["Z","Z de teste dBZ"],["B","Chirp MHz"],["T","Chirp ms"],["NF","NF dB"],["L","Perdas RF dB"],["sv","σv chuva m/s"],["sector","Setor °"],["upd","Varredura s"],["thr","Limiar estatístico dB"],["enbw","ENBW janela / T"],["impl","Margem engenharia dB"]];
+const inp=document.getElementById("inputs"); defs.forEach(([k,n])=>{let d=document.createElement("div");d.className="box";d.innerHTML='<label>'+n+'</label><input id="'+k+'" value="'+p[k]+'">';inp.append(d);d.lastChild.oninput=e=>{let v=+e.target.value.replace(",",".");if(isFinite(v)){p[k]=v;go()}}});
+const db=x=>10*Math.log10(x), fmt=(x,n=2)=>isFinite(x)?x.toFixed(n):"—";
+function calc(){
+ let lam=C/(p.f*1e9),Gt=p.eta*(PI*p.Dtx/lam)**2,Gr=p.eta*(PI*p.Drx/lam)**2;
+ let ttd=70*lam/p.Dtx,trd=70*lam/p.Drx,tt=ttd*PI/180,tr=trd*PI/180,te2=2*tt*tt*tr*tr/(tt*tt+tr*tr);
+ let B=p.B*1e6,T=p.T/1000,R=p.R*1000,dR=C/(2*B),Zl=10**(p.Z/10)*1e-18;
+ let PrW=p.Pt*Gt*Gr*te2*(2*dR)*PI**3*p.K2*Zl/(1024*LN2*lam*lam*R*R);
+ let Pr=db(PrW)+30-p.L;
+ let Br=p.enbw/T, N=-174+p.NF+db(Br), snr1=Pr-N;
+ let rate=p.sector/p.upd,dwell=trd/rate,Nchirp=Math.max(1,Math.floor(dwell/T));
+ let sigf=2*p.sv/lam,Bw=Math.sqrt(2*PI)*sigf,Nind=Math.max(1,Math.min(Nchirp,dwell*Bw));
+ let Gav=5*Math.log10(Nind),sig=snr1+Gav;
+ let Zth=p.Z-(sig-p.thr),Zeng=Zth+p.impl;
+ return {lam,Gt,Gr,ttd,trd,dR,Pr,Br,N,snr1,dwell,Nchirp,Bw,Nind,Gav,sig,Zth,Zeng,fb:2*R*B/(C*T),vN:lam/(4*T)};
+}
+function go(){let r=calc();let rows=[
+["Ganho TX / RX",fmt(db(r.Gt),1)+" / "+fmt(db(r.Gr),1)+" dBi"],["Feixe TX / RX",fmt(r.ttd,2)+" / "+fmt(r.trd,2)+" °"],["ΔR",fmt(r.dR,0)+" m"],["Potência recebida para Z teste",fmt(r.Pr,1)+" dBm"],["ENBW range bin",fmt(r.Br,0)+" Hz"],["Ruído térmico range bin",fmt(r.N,1)+" dBm"],["SNR range-bin / chirp",fmt(r.snr1,1)+" dB"],["Dwell",fmt(r.dwell,3)+" s"],["Chirps / dwell",fmt(r.Nchirp,0)],["Banda espectral weather",fmt(r.Bw,0)+" Hz"],["Looks independentes estimados",fmt(r.Nind,0)],["Ganho estatístico de média",fmt(r.Gav,1)+" dB"],["Significância térmica estimada",fmt(r.sig,1)+" dB"],["Zmin thermal/statistical",fmt(r.Zth,1)+" dBZ"],["Zmin engineering",fmt(r.Zeng,1)+" dBZ"],["Beat @ alcance",fmt(r.fb/1000,0)+" kHz"],["Nyquist velocity","±"+fmt(r.vN,1)+" m/s"]];
+ document.getElementById("out").innerHTML="<tr><th>Grandeza</th><th>Resultado</th></tr>"+rows.map(x=>"<tr><td>"+x[0]+"</td><td>"+x[1]+"</td></tr>").join("");
+}go();</script></body></html>
