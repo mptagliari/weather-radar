@@ -1,0 +1,24 @@
+subsystem,item,status,preferred_source,notes
+antenna,1.70 m parabolic reflector,on_hand,on_hand,Characterize geometry and surface before feed design
+antenna,0.60 m parabolic reflector x2,on_hand,on_hand,Possible TX or alternate-band use
+mechanics,azimuth bearings/TBD,open,salvage_or_fabricate,Reflector load carried independently of drive motor
+mechanics,automotive windshield-wiper motor and linkage,candidate,salvage,Oscillating sector drive candidate
+position,absolute azimuth encoder,candidate,buy_or_salvage,Target angular knowledge <=0.2-0.3 deg
+control,motion controller,candidate,on_hand_or_buy,ESP32-class device is sufficient for motion/telemetry
+power,12 V mechanical supply,candidate,salvage,Separate/filtered from sensitive RF supplies
+rf,frequency reference,open,buy,Select after band/synthesizer decision
+rf,FMCW synthesizer,open,buy_or_build,Do not freeze until waveform is defined
+rf,TX driver,open,buy_or_salvage,Depends on band and PA
+rf,TX PA,open,buy_or_salvage,Do not select before link budget
+rf,TX band-pass filter,open,buy_or_build,Band dependent
+rf,TX antenna/feed,open,build_or_salvage,Beam must illuminate RX field of view
+rf,RX feed,open,build,Designed for selected band and reflector geometry
+rf,RX band-pass filter,open,buy_or_build,Band dependent
+rf,RX LNA,open,buy_or_build,Place close to feed; target NF derived from link budget
+rf,I/Q mixer,open,buy_or_build,Band dependent
+if,IF filtering/amplification,open,build,Derived from chirp and beat-frequency plan
+acquisition,ADC,open,buy,Sample rate/ENOB derived from waveform and dynamic range
+processing,FPGA/SBC,open,buy_or_reuse,Architecture TBD after DSP requirements
+environment,enclosure/weatherproofing,open,salvage_or_fabricate,RF head likely needs local weatherproof enclosure
+environment,RF module temperature sensing,candidate,buy,Useful for calibration/stability tracking
+protection,surge/lightning protection,open,buy,Required before permanent outdoor installation
