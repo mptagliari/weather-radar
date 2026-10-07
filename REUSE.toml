@@ -1,0 +1,36 @@
+version = 1
+SPDX-PackageName = "BWR-1 (Bobby Weather Radar)"
+SPDX-PackageSupplier = "Matheus Tagliari"
+SPDX-PackageDownloadLocation = "https://github.com/mptagliari/weather-radar"
+
+# Licensing map for BWR-1. See LICENSING.md for the reasoning.
+# Per-file SPDX headers take precedence over these defaults.
+
+# Documentation, requirements, references and images
+[[annotations]]
+path = ["README.md", "LICENSING.md", "docs/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Matheus Tagliari and BWR-1 contributors"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# Hardware design sources: mechanics, RF, antennas/feeds, PCBs, BOM
+[[annotations]]
+path = ["hardware/**", "bom/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Matheus Tagliari and BWR-1 contributors"
+SPDX-License-Identifier = "CERN-OHL-S-2.0"
+
+# Firmware, DSP, tools and simulations
+[[annotations]]
+path = ["firmware/**", "software/**", "simulations/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Matheus Tagliari and BWR-1 contributors"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+# Network-facing services (data server, PPI/web publishing, APIs)
+[[annotations]]
+path = ["server/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Matheus Tagliari and BWR-1 contributors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
