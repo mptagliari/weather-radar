@@ -22,7 +22,7 @@ SPDX-License-Identifier = "CERN-OHL-S-2.0"
 
 # Firmware, DSP, tools and simulations
 [[annotations]]
-path = ["firmware/**", "software/**", "simulations/**"]
+path = ["firmware/**", "software/**", "simulations/**", ".github/**"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Matheus Tagliari and BWR-1 contributors"
 SPDX-License-Identifier = "GPL-3.0-or-later"
