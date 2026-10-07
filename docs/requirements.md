@@ -45,7 +45,7 @@ Reasons for preferring C first include lower precipitation attenuation than X ba
 
 Feeds are **not assumed reusable** merely because the reflectors are reusable. Reflector geometry, focal ratio, illumination, surface accuracy and polarization must be characterized.
 
-A TX antenna with gain comparable to the RX antenna is preferred. At equal frequency/efficiency, reducing diameter from 1.70 m to 0.60 m costs approximately 9 dB of antenna gain. A very broad fixed-sector TX is therefore not the baseline.
+A TX antenna with gain comparable to the RX antenna is preferred. At equal frequency/efficiency, reducing diameter from 1.70 m to 0.60 m costs approximately 9 dB of antenna gain, which translates into roughly 6.6 dB of meteorological sensitivity because the wider TX beam slightly enlarges the illuminated volume (see the link-budget model). A very broad fixed-sector TX is therefore not the baseline.
 
 ## Mechanics
 

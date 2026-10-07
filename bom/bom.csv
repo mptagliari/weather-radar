@@ -2,9 +2,10 @@ subsystem,item,status,preferred_source,notes
 antenna,1.70 m parabolic reflector,on_hand,on_hand,Characterize geometry and surface before feed design
 antenna,0.60 m parabolic reflector x2,on_hand,on_hand,Possible TX or alternate-band use
 mechanics,azimuth bearings/TBD,open,salvage_or_fabricate,Reflector load carried independently of drive motor
-mechanics,automotive windshield-wiper motor and linkage,candidate,salvage,Oscillating sector drive candidate
+mechanics,automotive windshield-wiper motor (geared; no crank/linkage),candidate,salvage,Bidirectional drive via H-bridge with closed loop on antenna-axis encoder; worm gear self-locks against wind
 position,absolute azimuth encoder,candidate,buy_or_salvage,Target angular knowledge <=0.2-0.3 deg
 control,motion controller,candidate,on_hand_or_buy,ESP32-class device is sufficient for motion/telemetry
+control,H-bridge motor driver (BTS7960-class),candidate,buy,Bidirectional wiper-motor drive with current sensing
 power,12 V mechanical supply,candidate,salvage,Separate/filtered from sensitive RF supplies
 rf,frequency reference,open,buy,Select after band/synthesizer decision
 rf,FMCW synthesizer,open,buy_or_build,Do not freeze until waveform is defined

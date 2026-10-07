@@ -1,28 +1,181 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BWR-1 Link Budget v2</title>
-<style>body{font:14px system-ui;max-width:1100px;margin:auto;padding:20px;background:#f4f5f6;color:#17212b}h1{margin-bottom:4px}.note{color:#59636d}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}.box,table{background:white;border:1px solid #ccd3d8;border-radius:6px}.box{padding:10px}label{display:block;font-size:12px;color:#59636d}input{width:100%;box-sizing:border-box;padding:6px;font:14px monospace}table{border-collapse:collapse;width:100%;margin-top:16px;overflow:hidden}th,td{padding:7px;border-bottom:1px solid #ddd;text-align:right}th:first-child,td:first-child{text-align:left}.ok{font-weight:bold}.warn{font-weight:bold}code{background:#e8ebed;padding:2px 4px}</style></head><body>
-<h1>BWR-1 · Link budget FMCW v2</h1><p class="note">Separa potência meteorológica, ENBW do range FFT, estatística de looks independentes e margem de engenharia. Estimativa de projeto, não medição.</p>
-<div class="grid" id="inputs"></div><table id="out"></table>
-<p class="note">Modelo de looks: <code>Nind=min(Nchirps, dwell·Bweather)</code>. Ganho estatístico = <code>5 log10(Nind)</code>. Não é chamado de ganho coerente. O Zmin engineering adiciona margem explícita para leakage, phase noise/clutter, ADC e imperfeições ainda não modeladas.</p>
+<!doctype html>
+<!--
+SPDX-FileCopyrightText: 2026 Matheus Tagliari and BWR-1 contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BWR-1 Link Budget v3</title>
+<style>
+:root{--bg:#eef1f3;--panel:#f9fbfc;--ink:#17212b;--muted:#5a6772;--line:#cdd5db;--field:#fff;--accent:#b45309;
+--good:#15803d;--warn:#a16207;--bad:#b91c1c;--s1:#2563eb;--s2:#b45309;--s3:#7c3aed;--s4:#0f766e;
+--mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#10161c;--panel:#162029;--ink:#e3e9ee;--muted:#93a1ad;--line:#2b3742;--field:#0d1318;
+--accent:#f59e0b;--good:#4ade80;--warn:#facc15;--bad:#f87171;--s1:#60a5fa;--s2:#f59e0b;--s3:#a78bfa;--s4:#2dd4bf;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:24px 16px 48px;display:grid;gap:28px}
+h1,h2{margin:0;line-height:1.15}h1{font-size:1.9rem}h2{font-size:1.2rem}
+.eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600}
+.lede,.note{color:var(--muted);max-width:70ch;margin:0}.note{font-size:.85rem}
+section{display:grid;gap:12px;min-width:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sc);border-radius:6px;padding:12px 14px;display:grid;gap:4px}
+.card b{font-size:1rem}.card .z{font:500 1.7rem/1.1 var(--mono)}.card .z span{font-size:.85rem;color:var(--muted)}
+.card .m{font-size:.82rem;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:1px 7px;border-radius:99px;border:1px solid currentColor}
+.ok{color:var(--good)}.mid{color:var(--warn)}.no{color:var(--bad)}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:600px}
+th,td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left;white-space:normal;position:sticky;left:0;background:var(--panel);min-width:160px}
+thead th{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+thead th.sc{color:var(--ink);border-bottom:3px solid var(--sc)}
+tr.g td{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:600;padding-top:12px}
+td em{display:block;font-style:normal;color:var(--muted);font-size:.75rem}
+td.v{font-family:var(--mono)} .u{color:var(--muted);font-size:.8em;margin-left:3px}
+.tw{color:var(--warn)}.tb{color:var(--bad)}
+input{width:100%;min-width:64px;font:500 .92rem var(--mono);text-align:right;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:4px;padding:4px 6px}
+input.t{text-align:left;font-family:inherit;font-weight:600}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px 12px}
+.fld{display:grid;grid-template-columns:1fr 88px;gap:8px;align-items:center;padding:7px 10px;background:var(--panel);border:1px solid var(--line);border-radius:6px}
+.fld label{font-size:.85rem;line-height:1.25}.fld label span{display:block;color:var(--muted);font-size:.74rem}
+.chart{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px}
+.chart svg{display:block;width:100%;height:auto}.chart text{fill:var(--muted);font:11px var(--mono)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.84rem;padding-top:4px}
+.legend i{display:inline-block;width:14px;height:3px;background:var(--sc);vertical-align:middle;margin-right:6px}
+details{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 14px}
+summary{cursor:pointer;font-weight:600}details li{font-size:.9rem;max-width:75ch}code{font-family:var(--mono);font-size:.85em}
+button{font:600 .85rem inherit;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:6px 12px;cursor:pointer}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header>
+  <div class="eyebrow">BWR-1 · simulations/link-budget · v3</div>
+  <h1>Link budget meteorológico FMCW</h1>
+  <p class="lede">Z<sub>min</sub> por configuração, separando potência meteorológica, ruído pós-FFT de alcance, estatística de detecção e margem de engenharia explícita. É estimativa de projeto, não sensibilidade demonstrada.</p>
+</header>
+
+<section><h2>Resumo <span class="note" id="sumR"></span></h2><div class="cards" id="cards"></div>
+<p class="note">Valor principal: estimador filtrado na banda Doppler + margem de engenharia. A tabela mostra também os estimadores alternativos.</p></section>
+
+<section><h2>Cenários</h2><div class="scroll"><table id="scT"></table></div></section>
+<section><h2>Parâmetros comuns</h2><div class="grid" id="common"></div></section>
+<section><h2>Z<sub>min</sub> de engenharia × alcance</h2>
+<div class="chart"><svg id="chart" viewBox="0 0 640 300" role="img" aria-label="Zmin em função do alcance"></svg><div class="legend" id="legend"></div></div>
+<p class="note">Linha tracejada laranja: meta. Linha pontilhada vertical: alcance de avaliação.</p></section>
+<section><h2>Resultados detalhados</h2><div class="scroll"><table id="res"></table></div></section>
+
+<details><summary>Modelo e premissas</summary><ul>
+<li><b>Antenas:</b> <code>G = η(πD/λ)²</code>, <code>θ₃dB ≈ 70λ/D</code>.</li>
+<li><b>Potência meteorológica</b> (Probert-Jones com feixes TX/RX distintos): <code>Pr = Pt·Gt·Gr·θ²ef·(2ΔR)·π³·|K|²·Z / (1024·ln2·λ²·R²)</code>, <code>θ²ef = 2θt²θr²/(θt²+θr²)</code>, <code>2ΔR = c/B</code>.</li>
+<li><b>Atenuação por chuva:</b> ITU-R P.838-3, polarização H, coeficientes interpolados em log-frequência; ida e volta; só no trecho informado.</li>
+<li><b>Ruído por bin de alcance:</b> <code>N = −174 + NF + 10log(ENBW/T)</code>.</li>
+<li><b>Espectro da chuva:</b> <code>B_w = √(2π)·2σv/λ</code>; PRF = 1/T.</li>
+<li><b>(a) Looks independentes — modelo v2:</b> <code>SNR_chirp + 5log(min(N_chirps, dwell·B_w))</code>. Correto para a <i>precisão</i> da estimativa quando SNR ≳ 0 dB; pessimista para detecção com SNR baixo.</li>
+<li><b>(b) Radiômetro:</b> <code>SNR_chirp + 5log(N_chirps)</code>. Com SNR baixo, o limite é a flutuação do ruído, independente de chirp a chirp.</li>
+<li><b>(c) Filtrado na banda Doppler (principal):</b> FFT em slow-time e soma só da banda ocupada pela chuva, <code>B_sel = min(B_w, PRF)</code>: <code>SNR = Pr − (−174 + NF + 10log(ENBW·B_sel))</code>, <code>M = min(N_chirps, dwell·B_sel)</code>, significância <code>SNR + 5log M</code>. Supõe que a posição espectral do eco é estimada (spectral processing padrão).</li>
+<li><b>Z<sub>min</sub></b> = Z de teste − (significância − limiar). <b>Engenharia</b> = + margem explícita para vazamento TX→RX, ruído de fase sobre clutter, ADC e erro de modelo.</li>
+<li>A aproximação de √N vale para N grande e SNR por amostra baixo ou moderado.</li>
+</ul></details>
+
+<div><button type="button" id="reset">Restaurar valores iniciais</button> <span class="note">Edições ficam só neste navegador.</span></div>
+</main>
 <script>
-const C=299792458,PI=Math.PI,LN2=Math.LN2;
-const p={f:5.8,Pt:1,Dtx:1.7,Drx:1.7,eta:.55,R:30,Z:10,B:1,T:1,NF:3,L:4,sv:2,sector:120,upd:30,thr:3,enbw:1.5,impl:6,K2:.93};
-const defs=[["f","Frequência GHz"],["Pt","TX W"],["Dtx","Prato TX m"],["Drx","Prato RX m"],["eta","Eficiência"],["R","Alcance km"],["Z","Z de teste dBZ"],["B","Chirp MHz"],["T","Chirp ms"],["NF","NF dB"],["L","Perdas RF dB"],["sv","σv chuva m/s"],["sector","Setor °"],["upd","Varredura s"],["thr","Limiar estatístico dB"],["enbw","ENBW janela / T"],["impl","Margem engenharia dB"]];
-const inp=document.getElementById("inputs"); defs.forEach(([k,n])=>{let d=document.createElement("div");d.className="box";d.innerHTML='<label>'+n+'</label><input id="'+k+'" value="'+p[k]+'">';inp.append(d);d.lastChild.oninput=e=>{let v=+e.target.value.replace(",",".");if(isFinite(v)){p[k]=v;go()}}});
-const db=x=>10*Math.log10(x), fmt=(x,n=2)=>isFinite(x)?x.toFixed(n):"—";
-function calc(){
- let lam=C/(p.f*1e9),Gt=p.eta*(PI*p.Dtx/lam)**2,Gr=p.eta*(PI*p.Drx/lam)**2;
- let ttd=70*lam/p.Dtx,trd=70*lam/p.Drx,tt=ttd*PI/180,tr=trd*PI/180,te2=2*tt*tt*tr*tr/(tt*tt+tr*tr);
- let B=p.B*1e6,T=p.T/1000,R=p.R*1000,dR=C/(2*B),Zl=10**(p.Z/10)*1e-18;
- let PrW=p.Pt*Gt*Gr*te2*(2*dR)*PI**3*p.K2*Zl/(1024*LN2*lam*lam*R*R);
- let Pr=db(PrW)+30-p.L;
- let Br=p.enbw/T, N=-174+p.NF+db(Br), snr1=Pr-N;
- let rate=p.sector/p.upd,dwell=trd/rate,Nchirp=Math.max(1,Math.floor(dwell/T));
- let sigf=2*p.sv/lam,Bw=Math.sqrt(2*PI)*sigf,Nind=Math.max(1,Math.min(Nchirp,dwell*Bw));
- let Gav=5*Math.log10(Nind),sig=snr1+Gav;
- let Zth=p.Z-(sig-p.thr),Zeng=Zth+p.impl;
- return {lam,Gt,Gr,ttd,trd,dR,Pr,Br,N,snr1,dwell,Nchirp,Bw,Nind,Gav,sig,Zth,Zeng,fb:2*R*B/(C*T),vN:lam/(4*T)};
+(function(){
+"use strict";
+const C0=299792458,PI=Math.PI,LN2=Math.LN2,dB=x=>10*Math.log10(x);
+const DEF={common:{R:30,Z:10,B:1,T:1,NF:3,L:4,enbw:1.5,impl:6,sv:2,sector:120,upd:30,thr:3,el:1,rainKm:0,rainRate:50,K2:0.93},
+ sc:[{name:"C 5,8 · 2×1,70 m",f:5.8,Pt:1,Dtx:1.7,Drx:1.7,eta:0.55},{name:"C 5,8 · TX 0,60 m",f:5.8,Pt:1,Dtx:0.6,Drx:1.7,eta:0.55},
+     {name:"X 9,5 · 2×1,70 m",f:9.5,Pt:1,Dtx:1.7,Drx:1.7,eta:0.55},{name:"X 9,5 · TX 0,60 m",f:9.5,Pt:1,Dtx:0.6,Drx:1.7,eta:0.55}]};
+const COMMON=[["R","Alcance de avaliação","km"],["Z","Z de teste / meta","dBZ"],["B","Largura do chirp B","MHz"],["T","Duração do chirp T (= 1/PRF)","ms"],
+ ["NF","Figura de ruído do RX","dB"],["L","Perdas RF","dB · cabos, feed, mixer"],["enbw","ENBW da janela de alcance","1,0 retangular · 1,5 Hann"],
+ ["impl","Margem de engenharia","dB · leakage, fase, ADC, modelo"],["sv","Largura espectral σv","m/s"],["sector","Setor varrido","graus"],
+ ["upd","Tempo por varredura","s"],["thr","Limiar de significância","dB"],["el","Elevação","graus"],["rainKm","Trecho de chuva no caminho","km"],
+ ["rainRate","Intensidade dessa chuva","mm/h"],["K2","|K|² da água","adim."]];
+const SCF=[["name","Nome",""],["f","Frequência","GHz"],["Pt","Potência TX (CW)","W"],["Dtx","Prato TX","m"],["Drx","Prato RX","m"],["eta","Eficiência η",""]];
+const KEY="bwr1-linkbudget-v3";
+let S=JSON.parse(JSON.stringify(DEF));
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.common&&s.sc&&s.sc.length===4)S={common:Object.assign({},DEF.common,s.common),sc:s.sc};}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+
+const RT=[[4,0.0001071,1.6009],[5,0.0002162,1.6969],[6,0.0007056,1.59],[7,0.001915,1.481],[8,0.004115,1.3905],[9,0.007535,1.3155],[10,0.01217,1.2571],[12,0.02386,1.1825]];
+function rainCoef(f){f=Math.min(12,Math.max(4,f));for(let i=0;i<RT.length-1;i++){const a=RT[i],b=RT[i+1];if(f<=b[0]){const t=(Math.log(f)-Math.log(a[0]))/(Math.log(b[0])-Math.log(a[0]));return{k:Math.exp(Math.log(a[1])+t*(Math.log(b[1])-Math.log(a[1]))),a:a[2]+t*(b[2]-a[2])};}}return{k:RT[7][1],a:RT[7][2]};}
+
+function compute(c,s,Rkm){
+ const lam=C0/(s.f*1e9),Gt=s.eta*(PI*s.Dtx/lam)**2,Gr=s.eta*(PI*s.Drx/lam)**2;
+ const thTd=70*lam/s.Dtx,thRd=70*lam/s.Drx,tt=thTd*PI/180,tr=thRd*PI/180,th2=2*tt*tt*tr*tr/(tt*tt+tr*tr);
+ const B=c.B*1e6,T=c.T*1e-3,dR=C0/(2*B),R=Rkm*1e3,Zl=10**(c.Z/10)*1e-18;
+ const PrW=s.Pt*Gt*Gr*th2*(2*dR)*PI**3*c.K2*Zl/(1024*LN2*lam*lam*R*R);
+ const rc=rainCoef(s.f),Arain=2*rc.k*c.rainRate**rc.a*Math.min(c.rainKm,Rkm);
+ const Pr=dB(PrW)+30-c.L-Arain,N0=-174+c.NF;
+ const Nbin=N0+dB(c.enbw/T),snr1=Pr-Nbin;
+ const dwell=thRd/(c.sector/c.upd),Nch=Math.max(1,Math.floor(dwell/T));
+ const Bw=Math.sqrt(2*PI)*2*c.sv/lam,PRF=1/T;
+ const Nind=Math.max(1,Math.min(Nch,dwell*Bw));
+ const sigA=snr1+5*Math.log10(Nind),sigB=snr1+5*Math.log10(Nch);
+ const Bsel=Math.min(Bw,PRF),snrC=Pr-(N0+dB(c.enbw*Bsel)),M=Math.max(1,Math.min(Nch,dwell*Bsel)),sigC=snrC+5*Math.log10(M);
+ const z=sig=>c.Z-(sig-c.thr);
+ const ZA=z(sigA),ZB=z(sigB),ZC=z(sigC),Zeng=ZC+c.impl;
+ return{lam,Gt,Gr,thTd,thRd,Pr,Arain,Nbin,snr1,dwell,Nch,Bw,PRF,Nind,ZA,ZB,snrC,M,ZC,Zeng,margin:c.Z-Zeng,
+  dR,cells:R/dR,tau:2*R/C0,fb:2*R*B/(C0*T),vN:lam/(4*T),coup:(40/lam)*C0*T/(2*B),
+  h:R*Math.sin(c.el*PI/180)+R*R/(2*8494e3),foot:R*tr,ff:2*s.Drx*s.Drx/lam,eirp:dB(s.Pt*1000)+dB(Gt),aliased:Bw>PRF};
 }
-function go(){let r=calc();let rows=[
-["Ganho TX / RX",fmt(db(r.Gt),1)+" / "+fmt(db(r.Gr),1)+" dBi"],["Feixe TX / RX",fmt(r.ttd,2)+" / "+fmt(r.trd,2)+" °"],["ΔR",fmt(r.dR,0)+" m"],["Potência recebida para Z teste",fmt(r.Pr,1)+" dBm"],["ENBW range bin",fmt(r.Br,0)+" Hz"],["Ruído térmico range bin",fmt(r.N,1)+" dBm"],["SNR range-bin / chirp",fmt(r.snr1,1)+" dB"],["Dwell",fmt(r.dwell,3)+" s"],["Chirps / dwell",fmt(r.Nchirp,0)],["Banda espectral weather",fmt(r.Bw,0)+" Hz"],["Looks independentes estimados",fmt(r.Nind,0)],["Ganho estatístico de média",fmt(r.Gav,1)+" dB"],["Significância térmica estimada",fmt(r.sig,1)+" dB"],["Zmin thermal/statistical",fmt(r.Zth,1)+" dBZ"],["Zmin engineering",fmt(r.Zeng,1)+" dBZ"],["Beat @ alcance",fmt(r.fb/1000,0)+" kHz"],["Nyquist velocity","±"+fmt(r.vN,1)+" m/s"]];
- document.getElementById("out").innerHTML="<tr><th>Grandeza</th><th>Resultado</th></tr>"+rows.map(x=>"<tr><td>"+x[0]+"</td><td>"+x[1]+"</td></tr>").join("");
-}go();</script></body></html>
+const nf=(x,d=1)=>isFinite(x)?x.toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d}):"—";
+const esc=t=>String(t).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const scv=i=>`var(--s${i+1})`,status=m=>m>=3?["ok","folga"]:m>=0?["mid","no limite"]:["no","não atinge"];
+const parse=v=>{const x=parseFloat(String(v).replace(",","."));return isFinite(x)?x:NaN;};
+function mk(id,val,text){const i=document.createElement("input");i.id=id;i.type="text";i.autocomplete="off";if(text)i.className="t";else i.inputMode="decimal";i.value=text?val:String(val).replace(".",",");return i;}
+
+function buildCommon(){const g=document.getElementById("common");g.innerHTML="";COMMON.forEach(([k,l,u])=>{const d=document.createElement("div");d.className="fld";
+ const lb=document.createElement("label");lb.htmlFor="c_"+k;lb.innerHTML=`${l}<span>${u}</span>`;const i=mk("c_"+k,S.common[k]);
+ i.addEventListener("input",()=>{const x=parse(i.value);if(!isNaN(x)&&x>=0){S.common[k]=x;save();update();}});d.append(lb,i);g.append(d);});}
+function buildSc(){const t=document.getElementById("scT");t.innerHTML="<thead><tr><th>Parâmetro</th>"+S.sc.map((s,i)=>`<th class="sc" style="--sc:${scv(i)}">${i+1}</th>`).join("")+"</tr></thead>";
+ const tb=document.createElement("tbody");SCF.forEach(([k,l,u])=>{const r=document.createElement("tr");const td=document.createElement("td");td.innerHTML=l+(u?`<em>${u}</em>`:"");r.append(td);
+ S.sc.forEach((s,i)=>{const c=document.createElement("td");const inp=mk(`s${i}_${k}`,s[k],k==="name");inp.setAttribute("aria-label",`${l}, cenário ${i+1}`);
+ inp.addEventListener("input",()=>{if(k==="name")s.name=inp.value;else{const x=parse(inp.value);if(isNaN(x)||x<=0)return;s[k]=x;}save();update();});c.append(inp);r.append(c);});tb.append(r);});t.append(tb);}
+
+const U=(x,u)=>x+`<span class="u">${u}</span>`;
+const ROWS=[["Antenas"],["Ganho TX / RX",r=>U(nf(dB(r.Gt))+" / "+nf(dB(r.Gr)),"dBi")],["Feixe TX / RX",r=>U(nf(r.thTd,2)+" / "+nf(r.thRd,2),"°")],
+ ["Feixe RX no alcance",r=>U(nf(r.foot/1e3,2),"km")],["Campo distante do RX",r=>U(nf(r.ff,0),"m")],["EIRP",r=>U(nf(r.eirp),"dBm"),"comparar com o limite regulatório"],
+ ["Potência e ruído"],["Atenuação por chuva (2 vias)",r=>U(nf(r.Arain),"dB")],["Potência recebida (Z de teste)",r=>U(nf(r.Pr),"dBm")],
+ ["Ruído por bin de alcance",r=>U(nf(r.Nbin),"dBm")],["SNR por chirp",r=>U(nf(r.snr1),"dB")],
+ ["Estatística"],["Dwell por feixe",r=>U(nf(r.dwell,2),"s")],["Chirps no dwell",r=>nf(r.Nch,0)],["Banda Doppler da chuva / PRF",r=>{const c=r.aliased?"tb":"";return `<span class="${c}">${nf(r.Bw,0)} / ${nf(r.PRF,0)}</span><span class="u">Hz</span>`},"vermelho: espectro maior que a PRF"],
+ ["Looks independentes (v2)",r=>nf(r.Nind,0)],["SNR na banda da chuva (c)",r=>U(nf(r.snrC),"dB")],["Amostras M (c)",r=>nf(r.M,0)],
+ ["Sensibilidade"],["Zmin (a) looks — v2",r=>U(nf(r.ZA),"dBZ"),"pessimista com SNR baixo"],["Zmin (b) radiômetro",r=>U(nf(r.ZB),"dBZ")],
+ ["Zmin (c) banda Doppler",r=>U(nf(r.ZC),"dBZ"),"térmico/estatístico"],["Zmin de engenharia",r=>U(`<b>${nf(r.Zeng)}</b>`,"dBZ"),"(c) + margem"],
+ ["Margem sobre a meta",r=>{const s=status(r.margin);return `<span class="${s[0]}">${nf(r.margin)}</span><span class="u">dB</span>`}],
+ ["FMCW"],["ΔR / células",r=>U(nf(r.dR,0),"m")+" / "+nf(r.cells,0)],["T / τ",r=>{const v=r.tau>0?(S.common.T*1e-3)/r.tau:NaN;return `<span class="${v<3?"tb":v<5?"tw":""}">${nf(v)}</span>`},"atraso no alcance vs chirp"],
+ ["Batimento no alcance",r=>U(nf(r.fb/1e3,0),"kHz")],["Velocidade de Nyquist",r=>{const c=r.vN<10?"tb":r.vN<16?"tw":"";return `<span class="${c}">±${nf(r.vN)}</span><span class="u">m/s</span>`}],
+ ["Erro de alcance a 20 m/s",r=>U(nf(r.coup,0),"m"),"chirp triangular cancela"],["Altura do feixe no alcance",r=>U(nf(r.h,0),"m"),"terra 4/3"]];
+
+function update(){const c=S.common,res=S.sc.map(s=>compute(c,s,c.R));
+ document.getElementById("sumR").textContent=`· ${nf(c.R,0)} km, meta ${nf(c.Z,0)} dBZ, margem ${nf(c.impl,0)} dB`;
+ document.getElementById("cards").innerHTML=S.sc.map((s,i)=>{const r=res[i],st=status(r.margin);return `<div class="card" style="--sc:${scv(i)}"><b>${esc(s.name)}</b><div class="z">${nf(r.Zeng)} <span>dBZ</span></div><div class="m"><span class="pill ${st[0]}">${st[1]}</span><span>${r.margin>=0?"+":""}${nf(r.margin)} dB</span></div></div>`}).join("");
+ let h="<thead><tr><th>Grandeza</th>"+S.sc.map((s,i)=>`<th class="sc" style="--sc:${scv(i)}">${esc(s.name)}</th>`).join("")+"</tr></thead><tbody>";
+ ROWS.forEach(row=>{if(row.length===1){h+=`<tr class="g"><td colspan="${S.sc.length+1}">${row[0]}</td></tr>`;return;}h+=`<tr><td>${row[0]}${row[2]?`<em>${row[2]}</em>`:""}</td>`+res.map(r=>`<td class="v">${row[1](r)}</td>`).join("")+"</tr>";});
+ document.getElementById("res").innerHTML=h+"</tbody>";draw();}
+
+function draw(){const c=S.common,svg=document.getElementById("chart"),W=640,H=300,ml=44,mr=14,mt=12,mb=34,pw=W-ml-mr,ph=H-mt-mb;
+ const Rmax=Math.max(50,Math.ceil(c.R/10)*10),xs=[];for(let r=1;r<Rmax;r+=Rmax/120)xs.push(r);xs.push(Rmax);
+ const ser=S.sc.map(s=>xs.map(r=>compute(c,s,r).Zeng)),all=ser.flat().filter(isFinite);
+ let lo=Math.floor(Math.min(c.Z,...all)/10)*10,hi=Math.ceil(Math.max(c.Z,...all)/10)*10;if(hi-lo<20)hi=lo+20;
+ const X=r=>ml+(r-1)/(Rmax-1)*pw,Y=z=>mt+(hi-Math.max(lo,Math.min(hi,z)))/(hi-lo)*ph;let o="";
+ const ys=(hi-lo)>60?20:10;for(let z=lo;z<=hi;z+=ys)o+=`<line x1="${ml}" x2="${W-mr}" y1="${Y(z)}" y2="${Y(z)}" stroke="var(--line)"/><text x="${ml-6}" y="${Y(z)+4}" text-anchor="end">${z}</text>`;
+ const xstep=Rmax>60?20:10;for(let r=xstep;r<=Rmax;r+=xstep)o+=`<line x1="${X(r)}" x2="${X(r)}" y1="${mt}" y2="${H-mb}" stroke="var(--line)"/><text x="${X(r)}" y="${H-mb+16}" text-anchor="middle">${r}</text>`;
+ o+=`<text x="${ml+pw/2}" y="${H-4}" text-anchor="middle">alcance (km)</text><text x="12" y="${mt+ph/2}" text-anchor="middle" transform="rotate(-90 12 ${mt+ph/2})">Zmin (dBZ)</text>`;
+ o+=`<line x1="${ml}" x2="${W-mr}" y1="${Y(c.Z)}" y2="${Y(c.Z)}" stroke="var(--accent)" stroke-dasharray="5 4" stroke-width="1.5"/><line x1="${X(c.R)}" x2="${X(c.R)}" y1="${mt}" y2="${H-mb}" stroke="var(--muted)" stroke-dasharray="2 3"/>`;
+ ser.forEach((s,i)=>{o+=`<path d="${s.map((z,j)=>(j?"L":"M")+X(xs[j]).toFixed(1)+","+Y(z).toFixed(1)).join("")}" fill="none" stroke="${scv(i)}" stroke-width="2.2"/>`;});
+ svg.innerHTML=o;document.getElementById("legend").innerHTML=S.sc.map((s,i)=>`<span style="--sc:${scv(i)}"><i></i>${esc(s.name)}</span>`).join("");}
+
+document.getElementById("reset").addEventListener("click",()=>{S=JSON.parse(JSON.stringify(DEF));save();buildCommon();buildSc();update();});
+buildCommon();buildSc();update();
+if(typeof window!=="undefined")window.BWR1={compute,DEF};
+})();
+</script>
+</body>
+</html>

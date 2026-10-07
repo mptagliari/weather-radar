@@ -54,7 +54,7 @@ Initial waveform baseline for engineering calculations:
 
 The 1.70 m reflector is currently the preferred high-gain RX candidate.
 
-TX gain matters directly to meteorological sensitivity. A 0.60 m TX reflector loses roughly 9 dB versus 1.70 m at equal frequency and efficiency. Therefore the baseline is **not** a stationary wide-sector transmitter. Preferred options are comparable-gain TX/RX apertures scanning together, or a smaller TX only if the PA/link budget explicitly pays the gain penalty.
+TX gain matters directly to meteorological sensitivity. A 0.60 m TX reflector loses roughly 9 dB of antenna gain versus 1.70 m at equal frequency and efficiency, or about 6.6 dB of sensitivity once the wider TX beam's larger illuminated volume is accounted for. Therefore the baseline is **not** a stationary wide-sector transmitter. Preferred options are comparable-gain TX/RX apertures scanning together, or a smaller TX only if the PA/link budget explicitly pays the gain penalty.
 
 TX beam should illuminate the complete RX-observed volume with modest margin rather than unnecessarily illuminating the full sector.
 
