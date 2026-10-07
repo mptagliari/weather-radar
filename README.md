@@ -16,7 +16,7 @@ The goal is a **sector-scanning FMCW weather radar** optimized for convective st
 - Future Band B candidate: X band (~9–10 GHz)
 - Architecture: FMCW with separate TX/RX
 - Preferred RX reflector: 1.70 m
-- TX should have comparable gain to RX; a 0.60 m TX reflector costs about 9 dB versus 1.70 m at the same frequency
+- TX should have comparable gain to RX; a 0.60 m TX reflector has ~9 dB less antenna gain than 1.70 m at the same frequency, which costs ~6.6 dB of meteorological sensitivity (the wider TX beam slightly enlarges the illuminated volume)
 - Initial scan is sectoral rather than 360 degrees
 - Future integration: Beackman / Chuvalski
 
@@ -28,8 +28,21 @@ This repository starts with requirements and engineering calculations. RF parts 
 
 See [requirements](docs/requirements.md), [architecture](docs/architecture.md), [link-budget notes](docs/link-budget.md), and [references](docs/references.md).
 
+The interactive link-budget model lives in [`simulations/link-budget/index.html`](simulations/link-budget/index.html). It is a single self-contained page: open it in any browser, no build or server needed.
+
 ## Design philosophy
 
 Build one radar in modules. Bench tests validate modules; they are not separate product generations. Changes are documented as engineering revisions.
 
 The project aims to use WMO/ISO weather-radar practices as engineering references where applicable. It does **not** claim WMO certification or operational equivalence to a professional radar network.
+
+## License
+
+BWR-1 is open hardware and free software, and every part of it stays open when shared:
+
+- **Hardware design** (mechanics, antennas, RF, PCBs, BOM): [CERN-OHL-S-2.0](LICENSES/CERN-OHL-S-2.0.txt)
+- **Firmware, DSP, tools, simulations**: [GPL-3.0-or-later](LICENSES/GPL-3.0-or-later.txt)
+- **Network services** (data server, PPI/web publishing, APIs): [AGPL-3.0-or-later](LICENSES/AGPL-3.0-or-later.txt)
+- **Documentation**: [CC-BY-SA-4.0](LICENSES/CC-BY-SA-4.0.txt)
+
+See [LICENSING.md](LICENSING.md) for the path-by-path map, the reasons behind each choice, use of the project name, and the builder's responsibility for radio regulation in their own country.

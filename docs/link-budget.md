@@ -245,3 +245,41 @@ Current calculation baseline:
 - engineering margin is explicit and must not be hidden inside generic "system loss".
 
 This model is intentionally conservative about claims: a calculated Zmin is a design estimate, not demonstrated radar sensitivity.
+
+
+## Detection statistics — model v0.4
+
+Model v0.3 used `N_ind = min(N_chirps, dwell * B_weather)` as the averaging count for **detection**. That count is right for the *precision* of a reflectivity estimate once the echo is reasonably above noise, but it is pessimistic for detecting a weak echo.
+
+At low single-chirp SNR the detection limit is set by the fluctuation of the **noise** power estimate. Receiver noise is independent from chirp to chirp, so averaging all chirps in the dwell reduces it as `sqrt(N_chirps)` regardless of how correlated the weather signal is (radiometer equation). Capping the count at the weather decorrelation count discards real averaging gain.
+
+A better practical estimator also uses the slow-time spectrum. After a Doppler FFT, weather occupies roughly `B_weather` of the `PRF = 1/T` slow-time bandwidth. Summing only the bins the echo occupies keeps all of the signal and only a `B_weather / PRF` fraction of the noise. This is standard spectral processing and assumes the spectral position of the echo is estimated from the data.
+
+The simulator now reports three estimators side by side:
+
+| Estimator | Significance | Use |
+|---|---|---|
+| (a) independent looks (v0.3) | `SNR_chirp + 5 log10(N_ind)` | precision of Z at moderate/high SNR; kept for traceability |
+| (b) radiometer, all chirps | `SNR_chirp + 5 log10(N_chirps)` | detection without Doppler filtering |
+| (c) Doppler-band filtered (**primary**) | `SNR_band + 5 log10(M)`, with `SNR_band` using noise bandwidth `ENBW * min(B_weather, PRF)` and `M = min(N_chirps, dwell * min(B_weather, PRF))` | detection with slow-time spectral processing |
+
+`Zmin_engineering = Zmin(c) + implementation margin`. The margin stays explicit and is not folded into RF losses.
+
+### Effect on the baseline
+
+Defaults: 1 W CW, eta = 0.55, NF = 3 dB, RF loss 4 dB, B = 1 MHz, T = 1 ms, Hann ENBW 1.5, sigma_v = 2 m/s, 120 deg in 30 s, threshold 3 dB, margin 6 dB, 30 km, no rain on the path.
+
+| Configuration | (a) v0.3 | (b) radiometer | (c) Doppler band | Engineering (c + 6 dB) |
+|---|---|---|---|---|
+| C 5.8 GHz, 1.70 m TX + 1.70 m RX | 13.9 | 10.3 | 6.7 | 12.7 |
+| C 5.8 GHz, 0.60 m TX + 1.70 m RX | 20.4 | 16.9 | 13.3 | 19.3 |
+| X 9.5 GHz, 1.70 m TX + 1.70 m RX | 5.3 | 2.8 | 0.3 | 6.3 |
+| X 9.5 GHz, 0.60 m TX + 1.70 m RX | 11.8 | 9.4 | 6.9 | 12.9 |
+
+Values in dBZ at 30 km. With the explicit 6 dB margin, C band with two 1.70 m apertures misses the 10 dBZ target by about 2.7 dB at 1 W. Roughly 2 W CW, or a lower NF / RF loss, closes it on paper. The v0.3 estimator would have implied about 10 W for the same result.
+
+These are still design estimates. TX-to-RX leakage and synthesizer phase noise on terrain clutter are not modeled from first principles and may dominate in practice.
+
+### Precipitation attenuation
+
+The simulator now applies two-way specific attenuation from ITU-R P.838-3 coefficients (horizontal polarization, log-frequency interpolation) over a user-defined path length through rain. Example: 10 km of 50 mm/h rain costs about 6 dB two-way at 5.8 GHz and about 29 dB at 9.5 GHz. This is the main reason C band remains Band A despite X band's sensitivity advantage for fixed apertures.
