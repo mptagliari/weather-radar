@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: 2026 Matheus Tagliari and BWR-1 contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: Engineering decision
+description: Propose or record a design decision with its alternatives and reasoning.
+title: "[decision] "
+labels: ["type:decision"]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What needs deciding and why now. Link the requirement (REQ-xxx) or issue.
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options considered
+      description: Each option with cost, availability, link-budget effect and regulatory effect.
+    validations:
+      required: true
+  - type: textarea
+    id: decision
+    attributes:
+      label: Decision and reason
+  - type: textarea
+    id: revisit
+    attributes:
+      label: What would make us revisit it

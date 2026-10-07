@@ -28,7 +28,9 @@ This repository starts with requirements and engineering calculations. RF parts 
 
 See [requirements](docs/requirements.md), [architecture](docs/architecture.md), [link-budget notes](docs/link-budget.md), and [references](docs/references.md).
 
-The interactive link-budget model lives in [`simulations/link-budget/index.html`](simulations/link-budget/index.html). It is a single self-contained page: open it in any browser, no build or server needed.
+The interactive link-budget model lives in [`simulations/link-budget/index.html`](simulations/link-budget/index.html). It is a single self-contained page: open it in any browser, no build or server needed. CI runs it against the baseline table in the link-budget notes, so the documented numbers and the model cannot drift apart.
+
+Work is tracked in [issues](https://github.com/mptagliari/weather-radar/issues) grouped by [milestones](https://github.com/mptagliari/weather-radar/milestones) that follow the integration sequence. Measurements and engineering decisions have their own issue templates.
 
 ## Design philosophy
 
