@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2026 Matheus Tagliari and BWR-1 contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: Measurement report
+description: Report a measurement or test of BWR-1 hardware, RF or processing.
+title: "[measurement] "
+labels: ["type:measurement"]
+body:
+  - type: input
+    id: what
+    attributes:
+      label: What was measured
+      placeholder: e.g. TX→RX isolation with 3 m antenna spacing
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Setup and equipment
+      description: Hardware, firmware/software version or commit, instruments and their calibration state, photos.
+    validations:
+      required: true
+  - type: textarea
+    id: conditions
+    attributes:
+      label: Conditions
+      description: Date/time, location, weather, temperature, frequency, power, antenna pointing.
+  - type: textarea
+    id: results
+    attributes:
+      label: Results
+      description: Numbers with units and uncertainty. Attach raw data files when possible.
+    validations:
+      required: true
+  - type: textarea
+    id: link-budget
+    attributes:
+      label: Effect on the link budget or requirements
+      description: Which assumption this confirms or changes (e.g. measured η, NF, losses).

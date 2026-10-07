@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: 2026 Matheus Tagliari and BWR-1 contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Publishes simulations/ to GitHub Pages on every push to main.
+# GitHub Pages on a private repository needs a paid plan, so the job is skipped
+# while the repository is private. Enable Pages (source: GitHub Actions) in the
+# repository settings after making it public.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          cp -r simulations _site/
+          cat > _site/index.html <<'HTML'
+          <!doctype html><meta charset="utf-8"><title>BWR-1</title>
+          <meta http-equiv="refresh" content="0; url=simulations/link-budget/">
+          <a href="simulations/link-budget/">BWR-1 link budget</a>
+          HTML
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

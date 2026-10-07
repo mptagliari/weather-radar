@@ -5,7 +5,7 @@ BWR-1 is open hardware and free software. Different parts of the project are dif
 | Part of the project | Paths | License |
 |---|---|---|
 | Hardware design sources: mechanics, antennas/feeds, RF chains, PCBs, BOM | `hardware/`, `bom/` | [CERN-OHL-S-2.0](LICENSES/CERN-OHL-S-2.0.txt) |
-| Firmware, DSP, tools, simulations | `firmware/`, `software/`, `simulations/` | [GPL-3.0-or-later](LICENSES/GPL-3.0-or-later.txt) |
+| Firmware, DSP, tools, simulations, CI and repository templates | `firmware/`, `software/`, `simulations/`, `.github/` | [GPL-3.0-or-later](LICENSES/GPL-3.0-or-later.txt) |
 | Network-facing services: data server, PPI/web publishing, APIs | `server/` | [AGPL-3.0-or-later](LICENSES/AGPL-3.0-or-later.txt) |
 | Documentation, requirements, references, images | `README.md`, `LICENSING.md`, `docs/` | [CC-BY-SA-4.0](LICENSES/CC-BY-SA-4.0.txt) |
 
