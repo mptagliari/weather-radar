@@ -3,7 +3,7 @@
 SPDX-FileCopyrightText: 2026 Matheus Tagliari and BWR-1 contributors
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -56,48 +56,48 @@ button{font:600 .85rem inherit;background:transparent;color:var(--ink);border:1p
 <main class="wrap">
 <header>
   <div class="eyebrow">BWR-1 · simulations/link-budget · v3</div>
-  <h1>Link budget meteorológico FMCW</h1>
-  <p class="lede">Z<sub>min</sub> por configuração, separando potência meteorológica, ruído pós-FFT de alcance, estatística de detecção e margem de engenharia explícita. É estimativa de projeto, não sensibilidade demonstrada.</p>
+  <h1>FMCW weather-radar link budget</h1>
+  <p class="lede">Z<sub>min</sub> per configuration, separating meteorological power, post-range-FFT noise, detection statistics and an explicit engineering margin. These are design estimates, not demonstrated sensitivity.</p>
 </header>
 
-<section><h2>Resumo <span class="note" id="sumR"></span></h2><div class="cards" id="cards"></div>
-<p class="note">Valor principal: estimador filtrado na banda Doppler + margem de engenharia. A tabela mostra também os estimadores alternativos.</p></section>
+<section><h2>Summary <span class="note" id="sumR"></span></h2><div class="cards" id="cards"></div>
+<p class="note">Headline value: Doppler-band filtered estimator plus engineering margin. The detailed table also shows the alternative estimators.</p></section>
 
-<section><h2>Cenários</h2><div class="scroll"><table id="scT"></table></div></section>
-<section><h2>Parâmetros comuns</h2><div class="grid" id="common"></div></section>
-<section><h2>Z<sub>min</sub> de engenharia × alcance</h2>
-<div class="chart"><svg id="chart" viewBox="0 0 640 300" role="img" aria-label="Zmin em função do alcance"></svg><div class="legend" id="legend"></div></div>
-<p class="note">Linha tracejada laranja: meta. Linha pontilhada vertical: alcance de avaliação.</p></section>
-<section><h2>Resultados detalhados</h2><div class="scroll"><table id="res"></table></div></section>
+<section><h2>Scenarios</h2><div class="scroll"><table id="scT"></table></div></section>
+<section><h2>Common parameters</h2><div class="grid" id="common"></div></section>
+<section><h2>Engineering Z<sub>min</sub> vs range</h2>
+<div class="chart"><svg id="chart" viewBox="0 0 640 300" role="img" aria-label="Zmin versus range"></svg><div class="legend" id="legend"></div></div>
+<p class="note">Dashed orange line: target. Dotted vertical line: evaluation range.</p></section>
+<section><h2>Detailed results</h2><div class="scroll"><table id="res"></table></div></section>
 
-<details><summary>Modelo e premissas</summary><ul>
-<li><b>Antenas:</b> <code>G = η(πD/λ)²</code>, <code>θ₃dB ≈ 70λ/D</code>.</li>
-<li><b>Potência meteorológica</b> (Probert-Jones com feixes TX/RX distintos): <code>Pr = Pt·Gt·Gr·θ²ef·(2ΔR)·π³·|K|²·Z / (1024·ln2·λ²·R²)</code>, <code>θ²ef = 2θt²θr²/(θt²+θr²)</code>, <code>2ΔR = c/B</code>.</li>
-<li><b>Atenuação por chuva:</b> ITU-R P.838-3, polarização H, coeficientes interpolados em log-frequência; ida e volta; só no trecho informado.</li>
-<li><b>Ruído por bin de alcance:</b> <code>N = −174 + NF + 10log(ENBW/T)</code>.</li>
-<li><b>Espectro da chuva:</b> <code>B_w = √(2π)·2σv/λ</code>; PRF = 1/T.</li>
-<li><b>(a) Looks independentes — modelo v2:</b> <code>SNR_chirp + 5log(min(N_chirps, dwell·B_w))</code>. Correto para a <i>precisão</i> da estimativa quando SNR ≳ 0 dB; pessimista para detecção com SNR baixo.</li>
-<li><b>(b) Radiômetro:</b> <code>SNR_chirp + 5log(N_chirps)</code>. Com SNR baixo, o limite é a flutuação do ruído, independente de chirp a chirp.</li>
-<li><b>(c) Filtrado na banda Doppler (principal):</b> FFT em slow-time e soma só da banda ocupada pela chuva, <code>B_sel = min(B_w, PRF)</code>: <code>SNR = Pr − (−174 + NF + 10log(ENBW·B_sel))</code>, <code>M = min(N_chirps, dwell·B_sel)</code>, significância <code>SNR + 5log M</code>. Supõe que a posição espectral do eco é estimada (spectral processing padrão).</li>
-<li><b>Z<sub>min</sub></b> = Z de teste − (significância − limiar). <b>Engenharia</b> = + margem explícita para vazamento TX→RX, ruído de fase sobre clutter, ADC e erro de modelo.</li>
-<li>A aproximação de √N vale para N grande e SNR por amostra baixo ou moderado.</li>
+<details><summary>Model and assumptions</summary><ul>
+<li><b>Antennas:</b> <code>G = η(πD/λ)²</code>, <code>θ₃dB ≈ 70λ/D</code>.</li>
+<li><b>Meteorological power</b> (Probert-Jones with distinct TX/RX beams): <code>Pr = Pt·Gt·Gr·θ²ef·(2ΔR)·π³·|K|²·Z / (1024·ln2·λ²·R²)</code>, <code>θ²ef = 2θt²θr²/(θt²+θr²)</code>, <code>2ΔR = c/B</code>.</li>
+<li><b>Rain attenuation:</b> ITU-R P.838-3, horizontal polarization, coefficients interpolated in log-frequency; two-way; applied only over the given path length.</li>
+<li><b>Noise per range bin:</b> <code>N = −174 + NF + 10log(ENBW/T)</code>.</li>
+<li><b>Precipitation spectrum:</b> <code>B_w = √(2π)·2σv/λ</code>; PRF = 1/T.</li>
+<li><b>(a) Independent looks (model v2):</b> <code>SNR_chirp + 5log(min(N_chirps, dwell·B_w))</code>. Right for estimate <i>precision</i> when SNR ≳ 0 dB; pessimistic for detection at low SNR.</li>
+<li><b>(b) Radiometer:</b> <code>SNR_chirp + 5log(N_chirps)</code>. At low SNR the limit is noise fluctuation, which is independent from chirp to chirp.</li>
+<li><b>(c) Doppler-band filtered (primary):</b> slow-time FFT, summing only the band occupied by precipitation, <code>B_sel = min(B_w, PRF)</code>: <code>SNR = Pr − (−174 + NF + 10log(ENBW·B_sel))</code>, <code>M = min(N_chirps, dwell·B_sel)</code>, significance <code>SNR + 5log M</code>. Assumes the echo spectral position is estimated (standard spectral processing).</li>
+<li><b>Z<sub>min</sub></b> = test Z − (significance − threshold). <b>Engineering</b> = plus an explicit margin for TX→RX leakage, phase noise on clutter, ADC and model error.</li>
+<li>The √N approximation holds for large N and low-to-moderate per-sample SNR.</li>
 </ul></details>
 
-<div><button type="button" id="reset">Restaurar valores iniciais</button> <span class="note">Edições ficam só neste navegador.</span></div>
+<div><button type="button" id="reset">Reset to defaults</button> <span class="note">Edits are kept in this browser only.</span></div>
 </main>
 <script>
 (function(){
 "use strict";
 const C0=299792458,PI=Math.PI,LN2=Math.LN2,dB=x=>10*Math.log10(x);
 const DEF={common:{R:30,Z:10,B:1,T:1,NF:3,L:4,enbw:1.5,impl:6,sv:2,sector:120,upd:30,thr:3,el:1,rainKm:0,rainRate:50,K2:0.93},
- sc:[{name:"C 5,8 · 2×1,70 m",f:5.8,Pt:1,Dtx:1.7,Drx:1.7,eta:0.55},{name:"C 5,8 · TX 0,60 m",f:5.8,Pt:1,Dtx:0.6,Drx:1.7,eta:0.55},
-     {name:"X 9,5 · 2×1,70 m",f:9.5,Pt:1,Dtx:1.7,Drx:1.7,eta:0.55},{name:"X 9,5 · TX 0,60 m",f:9.5,Pt:1,Dtx:0.6,Drx:1.7,eta:0.55}]};
-const COMMON=[["R","Alcance de avaliação","km"],["Z","Z de teste / meta","dBZ"],["B","Largura do chirp B","MHz"],["T","Duração do chirp T (= 1/PRF)","ms"],
- ["NF","Figura de ruído do RX","dB"],["L","Perdas RF","dB · cabos, feed, mixer"],["enbw","ENBW da janela de alcance","1,0 retangular · 1,5 Hann"],
- ["impl","Margem de engenharia","dB · leakage, fase, ADC, modelo"],["sv","Largura espectral σv","m/s"],["sector","Setor varrido","graus"],
- ["upd","Tempo por varredura","s"],["thr","Limiar de significância","dB"],["el","Elevação","graus"],["rainKm","Trecho de chuva no caminho","km"],
- ["rainRate","Intensidade dessa chuva","mm/h"],["K2","|K|² da água","adim."]];
-const SCF=[["name","Nome",""],["f","Frequência","GHz"],["Pt","Potência TX (CW)","W"],["Dtx","Prato TX","m"],["Drx","Prato RX","m"],["eta","Eficiência η",""]];
+ sc:[{name:"C 5.8 · 2×1.70 m",f:5.8,Pt:1,Dtx:1.7,Drx:1.7,eta:0.55},{name:"C 5.8 · TX 0.60 m",f:5.8,Pt:1,Dtx:0.6,Drx:1.7,eta:0.55},
+     {name:"X 9.5 · 2×1.70 m",f:9.5,Pt:1,Dtx:1.7,Drx:1.7,eta:0.55},{name:"X 9.5 · TX 0.60 m",f:9.5,Pt:1,Dtx:0.6,Drx:1.7,eta:0.55}]};
+const COMMON=[["R","Evaluation range","km"],["Z","Test Z / target","dBZ"],["B","Chirp bandwidth B","MHz"],["T","Chirp duration T (= 1/PRF)","ms"],
+ ["NF","RX noise figure","dB"],["L","RF losses","dB · cables, feed, mixer"],["enbw","Range-window ENBW","1.0 rectangular · 1.5 Hann"],
+ ["impl","Engineering margin","dB · leakage, phase noise, ADC, model"],["sv","Spectrum width σv","m/s"],["sector","Scanned sector","degrees"],
+ ["upd","Time per sweep","s"],["thr","Significance threshold","dB"],["el","Elevation","degrees"],["rainKm","Rain path length","km"],
+ ["rainRate","Rain rate on that path","mm/h"],["K2","|K|² of water","dimensionless"]];
+const SCF=[["name","Name",""],["f","Frequency","GHz"],["Pt","TX power (CW)","W"],["Dtx","TX reflector","m"],["Drx","RX reflector","m"],["eta","Aperture efficiency η",""]];
 const KEY="bwr1-linkbudget-v3";
 let S=JSON.parse(JSON.stringify(DEF));
 try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.common&&s.sc&&s.sc.length===4)S={common:Object.assign({},DEF.common,s.common),sc:s.sc};}catch(e){}
@@ -125,38 +125,38 @@ function compute(c,s,Rkm){
   dR,cells:R/dR,tau:2*R/C0,fb:2*R*B/(C0*T),vN:lam/(4*T),coup:(40/lam)*C0*T/(2*B),
   h:R*Math.sin(c.el*PI/180)+R*R/(2*8494e3),foot:R*tr,ff:2*s.Drx*s.Drx/lam,eirp:dB(s.Pt*1000)+dB(Gt),aliased:Bw>PRF};
 }
-const nf=(x,d=1)=>isFinite(x)?x.toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d}):"—";
+const nf=(x,d=1)=>isFinite(x)?x.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}):"—";
 const esc=t=>String(t).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
-const scv=i=>`var(--s${i+1})`,status=m=>m>=3?["ok","folga"]:m>=0?["mid","no limite"]:["no","não atinge"];
+const scv=i=>`var(--s${i+1})`,status=m=>m>=3?["ok","margin"]:m>=0?["mid","marginal"]:["no","misses target"];
 const parse=v=>{const x=parseFloat(String(v).replace(",","."));return isFinite(x)?x:NaN;};
-function mk(id,val,text){const i=document.createElement("input");i.id=id;i.type="text";i.autocomplete="off";if(text)i.className="t";else i.inputMode="decimal";i.value=text?val:String(val).replace(".",",");return i;}
+function mk(id,val,text){const i=document.createElement("input");i.id=id;i.type="text";i.autocomplete="off";if(text)i.className="t";else i.inputMode="decimal";i.value=String(val);return i;}
 
 function buildCommon(){const g=document.getElementById("common");g.innerHTML="";COMMON.forEach(([k,l,u])=>{const d=document.createElement("div");d.className="fld";
  const lb=document.createElement("label");lb.htmlFor="c_"+k;lb.innerHTML=`${l}<span>${u}</span>`;const i=mk("c_"+k,S.common[k]);
  i.addEventListener("input",()=>{const x=parse(i.value);if(!isNaN(x)&&x>=0){S.common[k]=x;save();update();}});d.append(lb,i);g.append(d);});}
-function buildSc(){const t=document.getElementById("scT");t.innerHTML="<thead><tr><th>Parâmetro</th>"+S.sc.map((s,i)=>`<th class="sc" style="--sc:${scv(i)}">${i+1}</th>`).join("")+"</tr></thead>";
+function buildSc(){const t=document.getElementById("scT");t.innerHTML="<thead><tr><th>Parameter</th>"+S.sc.map((s,i)=>`<th class="sc" style="--sc:${scv(i)}">${i+1}</th>`).join("")+"</tr></thead>";
  const tb=document.createElement("tbody");SCF.forEach(([k,l,u])=>{const r=document.createElement("tr");const td=document.createElement("td");td.innerHTML=l+(u?`<em>${u}</em>`:"");r.append(td);
- S.sc.forEach((s,i)=>{const c=document.createElement("td");const inp=mk(`s${i}_${k}`,s[k],k==="name");inp.setAttribute("aria-label",`${l}, cenário ${i+1}`);
+ S.sc.forEach((s,i)=>{const c=document.createElement("td");const inp=mk(`s${i}_${k}`,s[k],k==="name");inp.setAttribute("aria-label",`${l}, scenario ${i+1}`);
  inp.addEventListener("input",()=>{if(k==="name")s.name=inp.value;else{const x=parse(inp.value);if(isNaN(x)||x<=0)return;s[k]=x;}save();update();});c.append(inp);r.append(c);});tb.append(r);});t.append(tb);}
 
 const U=(x,u)=>x+`<span class="u">${u}</span>`;
-const ROWS=[["Antenas"],["Ganho TX / RX",r=>U(nf(dB(r.Gt))+" / "+nf(dB(r.Gr)),"dBi")],["Feixe TX / RX",r=>U(nf(r.thTd,2)+" / "+nf(r.thRd,2),"°")],
- ["Feixe RX no alcance",r=>U(nf(r.foot/1e3,2),"km")],["Campo distante do RX",r=>U(nf(r.ff,0),"m")],["EIRP",r=>U(nf(r.eirp),"dBm"),"comparar com o limite regulatório"],
- ["Potência e ruído"],["Atenuação por chuva (2 vias)",r=>U(nf(r.Arain),"dB")],["Potência recebida (Z de teste)",r=>U(nf(r.Pr),"dBm")],
- ["Ruído por bin de alcance",r=>U(nf(r.Nbin),"dBm")],["SNR por chirp",r=>U(nf(r.snr1),"dB")],
- ["Estatística"],["Dwell por feixe",r=>U(nf(r.dwell,2),"s")],["Chirps no dwell",r=>nf(r.Nch,0)],["Banda Doppler da chuva / PRF",r=>{const c=r.aliased?"tb":"";return `<span class="${c}">${nf(r.Bw,0)} / ${nf(r.PRF,0)}</span><span class="u">Hz</span>`},"vermelho: espectro maior que a PRF"],
- ["Looks independentes (v2)",r=>nf(r.Nind,0)],["SNR na banda da chuva (c)",r=>U(nf(r.snrC),"dB")],["Amostras M (c)",r=>nf(r.M,0)],
- ["Sensibilidade"],["Zmin (a) looks — v2",r=>U(nf(r.ZA),"dBZ"),"pessimista com SNR baixo"],["Zmin (b) radiômetro",r=>U(nf(r.ZB),"dBZ")],
- ["Zmin (c) banda Doppler",r=>U(nf(r.ZC),"dBZ"),"térmico/estatístico"],["Zmin de engenharia",r=>U(`<b>${nf(r.Zeng)}</b>`,"dBZ"),"(c) + margem"],
- ["Margem sobre a meta",r=>{const s=status(r.margin);return `<span class="${s[0]}">${nf(r.margin)}</span><span class="u">dB</span>`}],
- ["FMCW"],["ΔR / células",r=>U(nf(r.dR,0),"m")+" / "+nf(r.cells,0)],["T / τ",r=>{const v=r.tau>0?(S.common.T*1e-3)/r.tau:NaN;return `<span class="${v<3?"tb":v<5?"tw":""}">${nf(v)}</span>`},"atraso no alcance vs chirp"],
- ["Batimento no alcance",r=>U(nf(r.fb/1e3,0),"kHz")],["Velocidade de Nyquist",r=>{const c=r.vN<10?"tb":r.vN<16?"tw":"";return `<span class="${c}">±${nf(r.vN)}</span><span class="u">m/s</span>`}],
- ["Erro de alcance a 20 m/s",r=>U(nf(r.coup,0),"m"),"chirp triangular cancela"],["Altura do feixe no alcance",r=>U(nf(r.h,0),"m"),"terra 4/3"]];
+const ROWS=[["Antennas"],["TX / RX gain",r=>U(nf(dB(r.Gt))+" / "+nf(dB(r.Gr)),"dBi")],["TX / RX beamwidth",r=>U(nf(r.thTd,2)+" / "+nf(r.thRd,2),"°")],
+ ["RX beam width at range",r=>U(nf(r.foot/1e3,2),"km")],["RX far-field distance",r=>U(nf(r.ff,0),"m")],["EIRP",r=>U(nf(r.eirp),"dBm"),"compare with the regulatory limit"],
+ ["Power and noise"],["Rain attenuation (two-way)",r=>U(nf(r.Arain),"dB")],["Received power (test Z)",r=>U(nf(r.Pr),"dBm")],
+ ["Noise per range bin",r=>U(nf(r.Nbin),"dBm")],["SNR per chirp",r=>U(nf(r.snr1),"dB")],
+ ["Statistics"],["Dwell per beam",r=>U(nf(r.dwell,2),"s")],["Chirps per dwell",r=>nf(r.Nch,0)],["Precipitation Doppler band / PRF",r=>{const c=r.aliased?"tb":"";return `<span class="${c}">${nf(r.Bw,0)} / ${nf(r.PRF,0)}</span><span class="u">Hz</span>`},"red: spectrum wider than PRF"],
+ ["Independent looks (v2)",r=>nf(r.Nind,0)],["SNR in precipitation band (c)",r=>U(nf(r.snrC),"dB")],["Samples M (c)",r=>nf(r.M,0)],
+ ["Sensitivity"],["Zmin (a) looks, v2",r=>U(nf(r.ZA),"dBZ"),"pessimistic at low SNR"],["Zmin (b) radiometer",r=>U(nf(r.ZB),"dBZ")],
+ ["Zmin (c) Doppler band",r=>U(nf(r.ZC),"dBZ"),"thermal/statistical"],["Engineering Zmin",r=>U(`<b>${nf(r.Zeng)}</b>`,"dBZ"),"(c) + margin"],
+ ["Margin to target",r=>{const s=status(r.margin);return `<span class="${s[0]}">${nf(r.margin)}</span><span class="u">dB</span>`}],
+ ["FMCW"],["ΔR / range cells",r=>U(nf(r.dR,0),"m")+" / "+nf(r.cells,0)],["T / τ",r=>{const v=r.tau>0?(S.common.T*1e-3)/r.tau:NaN;return `<span class="${v<3?"tb":v<5?"tw":""}">${nf(v)}</span>`},"chirp duration vs range delay"],
+ ["Beat frequency at range",r=>U(nf(r.fb/1e3,0),"kHz")],["Nyquist velocity",r=>{const c=r.vN<10?"tb":r.vN<16?"tw":"";return `<span class="${c}">±${nf(r.vN)}</span><span class="u">m/s</span>`}],
+ ["Range error at 20 m/s",r=>U(nf(r.coup,0),"m"),"up/down chirps cancel it"],["Beam height at range",r=>U(nf(r.h,0),"m"),"4/3 Earth"]];
 
 function update(){const c=S.common,res=S.sc.map(s=>compute(c,s,c.R));
- document.getElementById("sumR").textContent=`· ${nf(c.R,0)} km, meta ${nf(c.Z,0)} dBZ, margem ${nf(c.impl,0)} dB`;
+ document.getElementById("sumR").textContent=`· ${nf(c.R,0)} km, target ${nf(c.Z,0)} dBZ, margin ${nf(c.impl,0)} dB`;
  document.getElementById("cards").innerHTML=S.sc.map((s,i)=>{const r=res[i],st=status(r.margin);return `<div class="card" style="--sc:${scv(i)}"><b>${esc(s.name)}</b><div class="z">${nf(r.Zeng)} <span>dBZ</span></div><div class="m"><span class="pill ${st[0]}">${st[1]}</span><span>${r.margin>=0?"+":""}${nf(r.margin)} dB</span></div></div>`}).join("");
- let h="<thead><tr><th>Grandeza</th>"+S.sc.map((s,i)=>`<th class="sc" style="--sc:${scv(i)}">${esc(s.name)}</th>`).join("")+"</tr></thead><tbody>";
+ let h="<thead><tr><th>Quantity</th>"+S.sc.map((s,i)=>`<th class="sc" style="--sc:${scv(i)}">${esc(s.name)}</th>`).join("")+"</tr></thead><tbody>";
  ROWS.forEach(row=>{if(row.length===1){h+=`<tr class="g"><td colspan="${S.sc.length+1}">${row[0]}</td></tr>`;return;}h+=`<tr><td>${row[0]}${row[2]?`<em>${row[2]}</em>`:""}</td>`+res.map(r=>`<td class="v">${row[1](r)}</td>`).join("")+"</tr>";});
  document.getElementById("res").innerHTML=h+"</tbody>";draw();}
 
@@ -167,7 +167,7 @@ function draw(){const c=S.common,svg=document.getElementById("chart"),W=640,H=30
  const X=r=>ml+(r-1)/(Rmax-1)*pw,Y=z=>mt+(hi-Math.max(lo,Math.min(hi,z)))/(hi-lo)*ph;let o="";
  const ys=(hi-lo)>60?20:10;for(let z=lo;z<=hi;z+=ys)o+=`<line x1="${ml}" x2="${W-mr}" y1="${Y(z)}" y2="${Y(z)}" stroke="var(--line)"/><text x="${ml-6}" y="${Y(z)+4}" text-anchor="end">${z}</text>`;
  const xstep=Rmax>60?20:10;for(let r=xstep;r<=Rmax;r+=xstep)o+=`<line x1="${X(r)}" x2="${X(r)}" y1="${mt}" y2="${H-mb}" stroke="var(--line)"/><text x="${X(r)}" y="${H-mb+16}" text-anchor="middle">${r}</text>`;
- o+=`<text x="${ml+pw/2}" y="${H-4}" text-anchor="middle">alcance (km)</text><text x="12" y="${mt+ph/2}" text-anchor="middle" transform="rotate(-90 12 ${mt+ph/2})">Zmin (dBZ)</text>`;
+ o+=`<text x="${ml+pw/2}" y="${H-4}" text-anchor="middle">range (km)</text><text x="12" y="${mt+ph/2}" text-anchor="middle" transform="rotate(-90 12 ${mt+ph/2})">Zmin (dBZ)</text>`;
  o+=`<line x1="${ml}" x2="${W-mr}" y1="${Y(c.Z)}" y2="${Y(c.Z)}" stroke="var(--accent)" stroke-dasharray="5 4" stroke-width="1.5"/><line x1="${X(c.R)}" x2="${X(c.R)}" y1="${mt}" y2="${H-mb}" stroke="var(--muted)" stroke-dasharray="2 3"/>`;
  ser.forEach((s,i)=>{o+=`<path d="${s.map((z,j)=>(j?"L":"M")+X(xs[j]).toFixed(1)+","+Y(z).toFixed(1)).join("")}" fill="none" stroke="${scv(i)}" stroke-width="2.2"/>`;});
  svg.innerHTML=o;document.getElementById("legend").innerHTML=S.sc.map((s,i)=>`<span style="--sc:${scv(i)}"><i></i>${esc(s.name)}</span>`).join("");}
