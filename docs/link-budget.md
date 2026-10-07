@@ -183,3 +183,65 @@ Compare at minimum:
 3. Future X-band equivalent configurations.
 
 No PA should be frozen before this calculation is credible.
+
+
+## Receiver / processing model v0.3
+
+The first interactive model used the meteorological Doppler spectral width simultaneously as receiver noise bandwidth and as the source of the independent-sample count. That is useful as a radiometric first-order estimate, but it hides the FMCW processing chain.
+
+The refined model separates three quantities:
+
+1. **Range-bin noise bandwidth (fast time).** After dechirp and range FFT/matched filtering, the equivalent noise bandwidth is approximately
+
+```text
+B_range ~= ENBW_window / T_chirp
+```
+
+where ENBW_window is 1.0 for a rectangular window and about 1.5 for a Hann window. Zero padding does not add processing gain.
+
+2. **Meteorological Doppler spectral width (slow time).**
+
+```text
+sigma_f = 2 sigma_v / lambda
+B_weather ~= sqrt(2 pi) sigma_f
+```
+
+This describes the weather signal spectrum; it is not automatically the receiver noise bandwidth.
+
+3. **Independent looks / power-estimator statistics.** Weather echo is a stochastic process. Dwell time, chirp repetition and Doppler decorrelation determine how many statistically useful looks are available. A first-order estimate is
+
+```text
+N_ind ~= min(N_chirps, dwell * B_weather)
+```
+
+but this is now exposed as an assumption rather than silently folded into receiver bandwidth.
+
+For incoherent power averaging, estimator significance improves approximately as sqrt(N_ind), i.e. `5 log10(N_ind)` dB. This term is **not labeled coherent SNR gain**.
+
+The model therefore reports separately:
+
+- received meteorological power;
+- thermal noise per post-range-FFT bin;
+- single-chirp range-bin SNR;
+- number of chirps in dwell;
+- estimated independent weather looks;
+- statistical averaging/significance gain;
+- thermal/statistical Zmin;
+- engineering Zmin after an explicit implementation margin.
+
+The implementation margin is reserved for effects not yet predicted from first principles: TX->RX leakage, phase-noise skirts on terrain clutter, ADC/quantization limitations, residual clutter and calibration/model error.
+
+### Baseline processing assumptions
+
+Current calculation baseline:
+
+- C band near 5.8 GHz;
+- B = 1 MHz (~150 m ideal radial resolution);
+- T_chirp = 1 ms;
+- Hann range window (ENBW factor ~1.5);
+- coherent I/Q acquisition;
+- sector/update geometry determines dwell;
+- independent-look model is explicit and editable;
+- engineering margin is explicit and must not be hidden inside generic "system loss".
+
+This model is intentionally conservative about claims: a calculated Zmin is a design estimate, not demonstrated radar sensitivity.
