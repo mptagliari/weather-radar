@@ -54,3 +54,14 @@ jobs:
           python-version: "3.12"
       - run: pip install platformio
       - run: pio run -d firmware/azimuth/esp32
+
+  dsp:
+    name: DSP tests (synthetic data)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install numpy
+      - run: python3 -I software/dsp/test_dsp.py
