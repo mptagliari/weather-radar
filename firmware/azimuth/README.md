@@ -13,13 +13,18 @@ Hardware-independent control logic for the azimuth drive (issue #11): programmab
 | `azctl.[ch]` | control core: sector scan, stare, park, PI rate loop | host tests |
 | `azsup.[ch]` | supervisor: HAL boundary, command ramp, latched faults (encoder loss, stall, over-current, late tick) | host tests, fake HAL |
 | `as5048a.[ch]` | AS5048A SPI frame parity/decoding | host tests |
-| `esp32/` | PlatformIO project wiring the above to SPI, PWM and an ADC | **not built, not run** |
+| `esp32/` | PlatformIO project wiring the above to SPI, PWM and an ADC | builds in CI (esp32dev); **never run on hardware** |
 
 ```sh
 make -C firmware/azimuth      # builds and runs the host tests
 ```
 
-The `esp32/` port was written without a toolchain or hardware. Pins, the current-sense scale and all gains are placeholders. Treat it as a starting point to be built and checked on the bench, not as working firmware.
+The `esp32/` project compiles and links for `esp32dev` (checked locally and in CI), but it has never run on hardware. Pins, the current-sense scale and all gains are placeholders. Treat it as a starting point to be checked on the bench, not as working firmware.
+
+```sh
+pip install platformio
+pio run -d firmware/azimuth/esp32
+```
 
 Still open: wind-driven park, gain tuning on the real motor, backlash and stopping-distance characterization.
 

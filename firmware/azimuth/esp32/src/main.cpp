@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // ESP32 port of the azimuth drive (issue #11).
-// UNTESTED: written without a toolchain or hardware. All pins, the current
+// Compiles for esp32dev but has never run on hardware. All pins, the current
 // scale and every gain below are placeholders to be set on the bench.
 //
 // Hardware assumed: AS5048A on SPI (mode 1), BTS7960-class H-bridge

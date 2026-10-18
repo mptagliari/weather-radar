@@ -38,3 +38,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: make -C firmware/azimuth
+
+  azimuth-esp32-build:
+    name: Azimuth ESP32 build (compile only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-espressif32-6.9.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install platformio
+      - run: pio run -d firmware/azimuth/esp32
