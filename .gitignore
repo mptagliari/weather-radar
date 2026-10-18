@@ -1,0 +1,19 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build outputs and tooling caches
+.pio/
+node_modules/
+firmware/azimuth/test_ctl
+firmware/azimuth/test_sup
+
+# Editor / OS / local agent files
+.DS_Store
+.claude/
