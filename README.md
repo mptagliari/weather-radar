@@ -26,7 +26,7 @@ This repository starts with requirements and engineering calculations. RF parts 
 
 **Architecture / requirements definition.** C band near 5.8 GHz is now the preferred first implementation, but RF power, exact frequency, waveform timing and final RF BOM remain unfrozen until the quantitative link budget and regulatory constraints are closed.
 
-See [requirements](docs/requirements.md), [architecture](docs/architecture.md), [link-budget notes](docs/link-budget.md), and [references](docs/references.md).
+See [requirements](docs/requirements.md), [architecture](docs/architecture.md), [link-budget notes](docs/link-budget.md), [data format](docs/data-format.md), and [references](docs/references.md).
 
 The interactive link-budget model lives in [`simulations/link-budget/index.html`](simulations/link-budget/index.html). It is a single self-contained page: open it in any browser, no build or server needed. CI runs it against the baseline table in the link-budget notes, so the documented numbers and the model cannot drift apart.
 
