@@ -6,8 +6,8 @@
 
 - **ITU Radio Regulations, as quoted in the sources found.** Ground-based meteorological radars are recognised in 5600–5650 MHz (footnotes 5.450B and 5.452 describe their status relative to maritime radionavigation). This is the reason the candidate band **avoids 5600–5650 MHz**: operational weather radars use it (an Australian regulator notes most national weather radars licensed there operate near 5625 MHz).
 - **5 GHz RLAN coexistence.** The 5470–5725 MHz band was allocated to RLANs with Dynamic Frequency Selection to protect radars, including weather radars in 5600–5650 MHz. This shows the band is shared and sensitive, not that 5.8 GHz is free of constraints.
-- **Brazilian restricted-radiation equipment rules exist for 5725–5850 MHz.** Anatel's Resolução nº 680/2017 and the technical-requirements Ato nº 14448/2017 cover spread-spectrum and other digital-modulation devices in that range.
-- In the part of Ato 14448 that was read, the 5.725–5.875 GHz item (4.1.4) gives **field-strength limits** (50 mV/m at 3 m fundamental, 500 µV/m harmonics) and a 50 dB out-of-band attenuation requirement, not an EIRP figure. Other parts, including amendments, were not read (the text is ~250 000 characters and only the first part was retrieved).
+- **Brazilian restricted-radiation equipment rules exist for 5725–5850 MHz.** Anatel Resolution No. 680/2017 (*Resolução nº 680*, restricted-radiation radiocommunication equipment) and the technical-requirements Act No. 14448/2017 (*Ato nº 14448*) cover spread-spectrum and other digital-modulation devices in that range.
+- In the part of Act 14448 that was read, the 5.725–5.875 GHz item (4.1.4) gives **field-strength limits** (50 mV/m at 3 m fundamental, 500 µV/m harmonics) and a 50 dB out-of-band attenuation requirement, not an EIRP figure. Other parts, including amendments, were not read (the text is ~250 000 characters and only the first part was retrieved).
 
 ## What was NOT established
 
