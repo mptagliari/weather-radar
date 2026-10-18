@@ -31,3 +31,10 @@ jobs:
         with:
           node-version: "20"
       - run: node simulations/link-budget/test.mjs
+
+  azimuth-firmware:
+    name: Azimuth controller host tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make -C firmware/azimuth
