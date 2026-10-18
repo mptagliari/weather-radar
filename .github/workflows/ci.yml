@@ -86,3 +86,11 @@ jobs:
           python-version: "3.12"
       - run: pip install "jsonschema[format]"
       - run: python3 -I software/tools/test_schema.py
+
+  language:
+    name: Language check (English only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -I software/tools/test_language.py
+      - run: python3 -I software/tools/check_language.py
