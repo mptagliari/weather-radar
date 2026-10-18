@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mptagliari/weather-radar/docs/schemas/ray.schema.json",
+  "title": "BWR-1 ray record (draft 0.1)",
+  "description": "One dwell at one azimuth/elevation with per-gate arrays. Array lengths must be equal; JSON Schema cannot express that, so see check_lengths in software/tools/test_schema.py. See docs/data-format.md.",
+  "type": "object",
+  "required": ["schema", "time", "scan_id", "ray_index", "azimuth_deg", "elevation_deg", "scan_mode",
+               "range_start_m", "range_step_m", "power_dbm", "quality_flags", "calibration", "waveform"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bwr1.ray/0.1"},
+    "time": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "scan_id": {"type": "string", "minLength": 1},
+    "ray_index": {"type": "integer", "minimum": 0},
+    "azimuth_deg": {"type": "number", "minimum": 0, "exclusiveMaximum": 360},
+    "azimuth_span_deg": {"type": "number", "minimum": 0, "maximum": 360},
+    "elevation_deg": {"type": "number", "minimum": -90, "maximum": 90},
+    "scan_mode": {"enum": ["sector", "stare", "park"]},
+    "range_start_m": {"type": "number", "minimum": 0},
+    "range_step_m": {"type": "number", "exclusiveMinimum": 0},
+    "power_dbm": {"type": "array", "minItems": 1, "items": {"type": ["number", "null"]}},
+    "reflectivity_dbz": {"type": "array", "minItems": 1, "items": {"type": ["number", "null"]}},
+    "velocity_ms": {"type": "array", "minItems": 1, "items": {"type": ["number", "null"]}},
+    "velocity_unfolded": {"type": "boolean"},
+    "quality_flags": {"type": "array", "minItems": 1, "items": {"type": "integer", "minimum": 0, "maximum": 255}},
+    "calibration": {
+      "type": "object",
+      "required": ["applied", "state", "reference_plane"],
+      "additionalProperties": false,
+      "properties": {
+        "applied": {"type": "boolean"},
+        "state": {"enum": ["uncalibrated", "relative", "absolute"]},
+        "reference_plane": {"type": "string", "minLength": 1},
+        "constant_db": {"type": "number"},
+        "rf_temperature_c": {"type": "number"},
+        "last_solar_check": {"type": "string", "format": "date-time"}
+      }
+    },
+    "waveform": {
+      "type": "object",
+      "required": ["bandwidth_hz", "chirp_s", "n_chirps", "centre_freq_hz", "window"],
+      "additionalProperties": false,
+      "properties": {
+        "bandwidth_hz": {"type": "number", "exclusiveMinimum": 0},
+        "chirp_s": {"type": "number", "exclusiveMinimum": 0},
+        "n_chirps": {"type": "integer", "minimum": 1},
+        "centre_freq_hz": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "window": {"enum": ["rect", "hann"]}
+      }
+    }
+  },
+  "allOf": [
+    {"if": {"required": ["reflectivity_dbz"]}, "then": {"properties": {"calibration": {"properties": {"applied": {"const": true}}}}}},
+    {"if": {"properties": {"calibration": {"properties": {"state": {"const": "uncalibrated"}}}}, "required": ["calibration"]},
+     "then": {"properties": {"calibration": {"properties": {"applied": {"const": false}}}}}}
+  ]
+}

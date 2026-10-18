@@ -75,3 +75,14 @@ jobs:
         with:
           python-version: "3.12"
       - run: python3 -I software/tools/test_tools.py
+
+  schema:
+    name: Data-format schema tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "jsonschema[format]"
+      - run: python3 -I software/tools/test_schema.py

@@ -12,6 +12,8 @@ This is a **draft interface**, not a frozen one. Nothing here has been exercised
 - **Transport-neutral.** The canonical form is JSON (one ray per line, NDJSON, for streaming and archives). A binary encoding can be added later for the radar-to-server link without changing the field semantics.
 - **Export, not lock-in.** A later exporter to a standard weather-radar format (for example OPERA/ODIM_H5) is expected. The field names below are chosen to be convertible; no claim of conformance is made.
 
+The ray record is also available as a JSON Schema, [`schemas/ray.schema.json`](schemas/ray.schema.json), with tests in `software/tools/test_schema.py` (the example below is validated against it in CI). The schema rejects reflectivity without an applied calibration, and an `uncalibrated` state marked as applied; equal per-gate array lengths are checked separately because JSON Schema cannot express them.
+
 ## Conventions
 
 | Quantity | Unit | Convention |
