@@ -31,6 +31,7 @@ jobs:
         with:
           node-version: "20"
       - run: node simulations/link-budget/test.mjs
+      - run: node simulations/dynamic-range/test.mjs
 
   azimuth-firmware:
     name: Azimuth controller host tests
