@@ -8,7 +8,7 @@ SPDX-PackageDownloadLocation = "https://github.com/mptagliari/weather-radar"
 
 # Documentation, requirements, references and images
 [[annotations]]
-path = ["README.md", "LICENSING.md", "docs/**"]
+path = ["README.md", "LICENSING.md", "AGENTS.md", "docs/**"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Matheus Tagliari and BWR-1 contributors"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
